@@ -1,0 +1,177 @@
+---
+title: "Assignment 2"
+output: pdf_document
+author: "Group 2"
+---
+This short paper investigates the relative amount of corruption in different departments of the Indian government, as well as across weekdays. Primarily we look at two measures: Value of bribes in total, and volume of bribes. The paper uses data from Ipaidabribe.com, which has been scraped (code attached and supressed).
+
+```{r, eval = FALSE, message=FALSE, echo=FALSE}
+#DATA GATHERING. The following code scrapes the data.
+#The code takes a while to run. Instead, the dataset is loaded through githib in the next chunk
+
+# Packages
+library("rvest")
+library("dplyr")
+library("plyr")
+library("stringr")
+#The scraping works in the following way. 
+#1) We create an empty dataframe with the desired variables
+#2) We run a loop which targets each page of Ipaidabribe.com separately. For each page, we create a temporary
+#   data set with the same variables, and fill it out with scraped data. 
+#3) At the end of each loop stage, we append the temporary data set to the final one. 
+
+
+# Creating of relevant CSS
+css.selector.title=".heading-3 a"
+css.selector.amount=".paid-amount span"
+css.selector.namedep=".name a"
+css.selector.detail=".transaction a"
+css.selector.views=".overview .views"
+css.selector.city=".location"
+css.selector.date=".date"
+
+# We create an empty dataframe, where data can be stored (and reset the dataframe, if the code was run earlier)
+df <- data.frame(title=character(), amount=character(),department=character(), detail=character(), views=character(), city=character(), date=character())
+
+#The loop takes each page with 10 bribe reports, and scrapes the indicated number of posts
+number_of_posts <- 1000
+for (i in seq(0,number_of_posts-10,10)){ #number_of_posts minus 10, since 990 is the start of the last page
+  link = paste("http://www.ipaidabribe.com/reports/paid?page=", i, sep="")
+
+#For each page, we make a temporary dataset with the different parts we are interested in
+temp.titles <- read_html(link)  %>%
+  html_nodes(css=css.selector.title) %>%
+  html_text() %>% as.list() %>% ldply()
+
+temp.amount <- read_html(link)  %>%
+  html_nodes(css=css.selector.amount) %>%
+  html_text() %>% as.list() %>% ldply()
+
+temp.department <- read_html(link)  %>%
+  html_nodes(css=css.selector.namedep) %>%
+  html_text() %>% as.list() %>% ldply()
+
+temp.detail <- read_html(link)  %>%
+  html_nodes(css=css.selector.detail) %>%
+  html_text() %>% as.list() %>% ldply()
+
+temp.views <- read_html(link)  %>%
+  html_nodes(css=css.selector.views) %>%
+  html_text() %>% as.list() %>% ldply()
+
+temp.city <- read_html(link)  %>%
+  html_nodes(css=css.selector.city) %>%
+  html_text() %>% as.list() %>% ldply()
+
+temp.date <- read_html(link)  %>%
+  html_nodes(css=css.selector.date) %>%
+  html_text() %>% as.list() %>% ldply()
+
+#Combines all temporary datasets to one data set, which resembles the final one. 
+temp <- bind_cols(temp.titles, temp.amount, temp.department, temp.detail, temp.views, temp.city, temp.date)
+colnames(temp) <- c("title", "amount", "department", "detail", "views", "city", "date")
+
+#We append the data scraped in the current loop to the general data set
+df <- bind_rows(df, temp)
+
+#We'd like to be able to follow the scraping..
+print(paste("... scraped", i+10, "of", number_of_posts, sep = " "))
+
+#We do not want to bombard the server, so we let the system sleep a bit before we start the next page. 
+#This is partly because we are nice, and partly because the server seems to shut us down otherwise. 
+Sys.sleep(1)
+
+
+}
+
+print(paste("Scraping is done!"))
+
+#We now clean the data a wee bit. 
+
+# Danner dato variabel
+bribe$date = as.Date(bribe$date, "%B %d, %Y")
+
+# Laver numerisk værdi af views
+bribe$views = as.integer(str_extract(bribe$views, "[0-9]+"))
+
+# Laver numerisk værdi af amount
+bribe$amount = str_extract(gsub(",", "", bribe$amount), "[0-9]+")
+
+write.csv(df, file="Bribes.csv", row.names = FALSE)
+
+
+
+```
+The data set is in this case filtered to only consists of amounts below INR 1.000.000. This is done in order to avoid possible fake contributes to the homepage. Anyone can attribute a bribe-payment and it can be difficult to split the real from the fake posts. In addition there can be, from a public viewpoint, political reasons to create fake bribes on the homepages. As we can not identify the fake posts, the only restriction taken will be a filter deleting bribes over the amount of 1 million. 
+
+There are 18 departments on the site. Below is a plot of the distribution of the summarized bribe amount across departments, with only the eight departments who receive the largest amount shown. It is seen that the largest amount paid is in the Municipal Services and to the Police. The data range from their amounts of more than 2 mio. INR, to the poorer four departments who receive less than 5000 INR each.
+
+Whilst these amounts do not reveal much of the exact levels of corruption, they should give a good indication of the relative earnings of each department, if data is representative. It should be noted however that, even with our filters, a few observations carry a large weight. For instance there is a single Municipal Services bribe of 500.000 INR, 6 percent of their total. This may distort the picture somewhat. 
+```{r, echo=FALSE, message=FALSE, fig.height=3.5}
+library("readr")
+library("dplyr")
+
+Bribes <- read.csv("https://raw.githubusercontent.com/rbjoern/Gruppe2/e283b7eeade8a72e4cc4bde43ec040e2a27d9db6/Bribes.csv")
+
+
+Bribes.department <- Bribes %>% 
+  filter(amount < 1000000) %>%
+  group_by(department) %>% 
+  summarize(
+    totalbribes = sum(amount)
+  ) %>%
+arrange(-totalbribes)
+
+library("ggplot2")
+p = ggplot(data = Bribes.department, aes(x = reorder(department, totalbribes), y = totalbribes)) 
+p = p + geom_bar(stat = "identity")  + coord_flip()
+p = p + labs(title = "Figure 1: Total amount", x = "Department", y = "Total amount paid") + theme_minimal()
+p
+
+```
+Instead of looking at the amount of money changing hands, we may investigate the volume of individual bribes. Municipal services still top the list, but the order of departments changes somewhat. This indicates that some departments, such as the police, receive fewer but larger bribes according to the data. 
+
+All in all, we can see a bit of variation in the two measures. Among the 5 departments who receive the largest total amount of bribes, two are not amongst the five with the most cases. The greatest difference is easily 'Food, Civil Supplies and Consumer Affairs', who receive second-most bribes, but eight-most total. These differences may either stem from actual differences in bribing actity, or from the fact that some departments have outliers, so the first measure overstates corruption.
+```{r, echo=FALSE,  fig.height=3.5}
+Bribes.department <- merge(Bribes.department,tally(group_by(Bribes, department)))
+
+p = ggplot(data = Bribes.department, aes(x = reorder(department, n), y = n))
+p = p + geom_bar(stat = "identity")  + coord_flip()
+p = p + labs(title = "Figure 2: Total cases", x = "Department", y = "Total cases") + theme_minimal()
+p
+
+```
+A lighter topic may be this - does bribing activity vary across weekdays? A possible answer lies below! It is seen that while Monday is clearly the day with the most amounts of bribes, several other days have much higher mean value of each bribe. This is a simple mean calculated as the sum of bribes divided by number of bribes per weekday, it can therefore very easily be affected by a large and possible fake bribe on the homepage. 
+
+```{r, echo=FALSE, fig.width=3.3, fig.height=3.5 }
+library ("lubridate")
+library ("stringr")
+
+Bribes$amount =  as.numeric(str_extract(str_replace(Bribes$amount,",",""), "[[:digit:]]+"))
+Bribes$date2 = as.Date(Bribes$date)
+Bribes$weekday <- weekdays(Bribes$date2)
+Bribes$number=1
+
+Weekday_sum = Bribes %>%
+filter(amount < 1000000) %>%
+group_by(weekday)%>%
+mutate(SumAmount = sum(amount)) %>% 
+mutate (SumNumber = sum(number)) %>%
+distinct(weekday) %>%
+select(weekday, SumAmount, SumNumber)
+Weekday_sum$mean= (Weekday_sum$SumAmount)/(Weekday_sum$SumNumber)
+
+p = ggplot(data = Weekday_sum, aes(x = weekday, y = SumNumber)) 
+p = p + geom_bar(stat = "identity") + coord_flip()
+p = p + labs(title = "Total amount per day", x = "Days", y = "Number of bribes") + theme_minimal()
+p
+
+q = ggplot(data = Weekday_sum, aes(x = weekday, y = mean)) 
+q = q + geom_bar(stat = "identity")  + coord_flip()
+q = q + labs(title = "Mean amount per day", x = "Days", y = "Mean value of bribe") + theme_minimal()
+q
+
+
+```
+
+Our short look at the data allows us to draw a few, somewhat insecure conclusions. It seems some departments takes smaller bribes to a larger extent, while some departments receive fewer but larger bribes. Furthermore - most bribes are reported to be on a Monday, at least within this sample of data, whilst the average bribe levels spikes on other days. However, these are the dates where the bribe was recorded, not necessarily the day they happened.
