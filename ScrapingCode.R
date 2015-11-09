@@ -76,6 +76,15 @@ Sys.sleep(1)
 
 print(paste("Scraping is done!"))
 
+# Danner dato variabel
+bribe$date = as.Date(bribe$date, "%B %d, %Y")
+
+# Laver numerisk værdi af views
+bribe$views = as.integer(str_extract(bribe$views, "[0-9]+"))
+
+# Laver numerisk værdi af amount
+bribe$amount = str_extract(gsub(",", "", bribe$amount), "[0-9]+")
+
 write.csv(df, file="Bribes.csv", row.names = FALSE)
 
 
