@@ -2,6 +2,7 @@
 library("rvest")
 library("dplyr")
 library("plyr")
+library("stringr")
 
 #DATA GATHERING
 #The scraping works in the following way. 
