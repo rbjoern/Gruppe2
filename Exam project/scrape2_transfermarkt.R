@@ -75,7 +75,6 @@ df.unclean <- ldply(list.dfs, rbind)
 df <- df.unclean
 
 #Classifies by club by identifying the lines with only club names, and changing the variable
-#TODO: Needs to count rows automatically
 for (i in 1:nrow(df)) {
   if (df$name[i] == df$age[i]) {
     df$club[i] <- df$name[i]
