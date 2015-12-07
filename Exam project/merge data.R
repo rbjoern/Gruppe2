@@ -155,5 +155,4 @@ Clean.data$CPI_Index_2010 = NULL
 Clean.data$Transferfee    = NULL
 Clean.data$Marketvalue    = NULL
 
-
-
+write.csv(Clean.data, file="merged.csv", row.names = FALSE)
