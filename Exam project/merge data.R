@@ -1,6 +1,7 @@
 library("readr")
 library("stringr")
 library("dplyr")
+library("gdata")
 
 # Cleaning dataset "Transfers"
 # Transfermarket.com
@@ -78,9 +79,7 @@ merge <- left_join(clean.transfer, working, by.x = "Name", by.y = "Season")
 # Removing observations not available
 merge <- subset(merge, !is.na(Appearances))
 
-library(gdata)
-setwd <- ("C:/Users/Anna/Dropbox/SDS Gruppe/")
-index <- read.table("CP Index.txt", 
+index <- read.table("https://raw.githubusercontent.com/rbjoern/Gruppe2/master/Exam%20project/Data/CP%20Index.txt", 
                  header = TRUE)
 names (index) <- c("Season", "CPI Index")
 
