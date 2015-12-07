@@ -1,6 +1,5 @@
 library("stringr")
-
-
+library("dplyr")
 
                         ################################ Data cleaning ################################ 
 
@@ -14,7 +13,10 @@ transfers = read.csv("~/Documents/Polit/Valgfag/SDS/Gruppe2/Exam project/Data/tr
   
   # Creates a year variable based on season (as character)
   players$year = substr(as.character(players$season), nchar(as.character(players$season))-4+1, nchar(as.character(players$season)))
-
+  
+  # Transforms year variable to integer
+  players$year = as.numeric(players$year)
+  
   
   
   
@@ -68,21 +70,27 @@ transfers = read.csv("~/Documents/Polit/Valgfag/SDS/Gruppe2/Exam project/Data/tr
   # Creates price variable as product of transferpricing and the factor
   transfers$marketvalue = transfers$MV*transfers$factorMV
   
+  # Transforms age variable to integer
+  transfers$age = as.numeric(transfers$age)
+  
+  
   # Removes irrelevant variables
-  transfers$transferfee = NULL
-  transfers$test = NULL
-  transfers$multiplier = NULL
-  transfers$factor = NULL
-  transfers$fee = NULL
+  transfers$transferfee   = NULL
+  transfers$test          = NULL
+  transfers$multiplier    = NULL
+  transfers$factor        = NULL
+  transfers$fee           = NULL
   transfers$multiplierfee = NULL
-  transfers$factorfee = NULL
-  transfers$MV =NULL
-  transfers$multiplierMV = NULL
-  transfers$factorMV = NULL
+  transfers$factorfee     = NULL
+  transfers$MV            = NULL
+  transfers$multiplierMV  = NULL
+  transfers$factorMV      = NULL
+    
+  # Joining the transfer and player datasets (Inner join)
+  final = inner_join(transfers, players, by= c("name"="fullName","season"="year"))
   
-  
-  
-  
-  
-  
+  # Transforms all factor variables to strings
+  final = data.frame(lapply(final, as.character), stringsAsFactors=FALSE)
+    
+
   
