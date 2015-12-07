@@ -24,11 +24,11 @@ transfers = read.csv("~/Documents/Polit/Valgfag/SDS/Gruppe2/Exam project/Data/tr
   
   # Transforms some categories of transferfee to £0k
   transfers$fee = ifelse(transfers$transferfee=='Loan',
-                                                      '£0k', 
+                                                      NA, 
             ifelse(transfers$transferfee=='End of loan', 
-                                                      '£0k',
+                                                      NA,
             ifelse(transfers$transferfee=='Free transfer',
-                                                      '£0k',
+                                                      NA,
             as.character(transfers$transferfee)
                                                         ))) 
  
