@@ -109,10 +109,14 @@ merge             <- subset(merge, !is.na(Appearances))
 
 index             <- read.table("https://raw.githubusercontent.com/rbjoern/Gruppe2/master/Exam%20project/Data/CP%20Index.txt", 
                       header = TRUE)
-names (index)     <- c("Season", "CPI Index")
+names (index)     <- c("Season", "CPI_Index_2010", "CPI_Index_2014")
 
 Clean.data        <- left_join(merge, index, by.x = "Season")
 
 # Removes merge and index
 rm(merge)
 rm(index)
+
+#We calculate fixed prices 
+
+Clean.data$Transferfee_real = Clean.data$Transferfee/Clean.data$CPI_Index_2014
