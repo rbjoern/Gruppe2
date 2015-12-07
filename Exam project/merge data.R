@@ -169,3 +169,5 @@ Clean.data$Marketvalue    = NULL
 
 write.csv(Clean.data, file="merged.csv", row.names = FALSE)
 
+Clean <- as.data.frame (Clean.data)
+stargazer(Clean, type="html", title="Descriptive statistics", digits=2,  out="Summary Statistics.html", summary.stat = c("n", "min", "p25", "median", "p75", "max", "mean"))
