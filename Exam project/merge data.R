@@ -32,6 +32,10 @@ vars        <- c("name", "age", "position", "marketvalue", "otherclub", "season"
 Arrival     <- Arrival[vars]
 Departure   <- Departure[vars]
 
+# Removes vars and transfers
+rm(vars)
+rm(transfers)
+
 # Renaming variables. In this way we can seperate "Selling" and "Buying" club depending on the type of transfer. 
 names(Arrival)      <- c("Name", "Age", "Position", "Marketvalue", "Selling", "Season", "Buying", "Transferfee")
 names (Departure)   <- c("Name", "Age", "Position", "Marketvalue", "Buying", "Season", "Selling", "Transferfee")
@@ -40,10 +44,18 @@ vars4       <- c("Name", "Age", "Season", "Position","Transferfee", "Marketvalue
 Arrival     <- Arrival[vars4]
 Departure   <- Departure[vars4]
 
+# Removes vars4
+rm(vars4)
+
 # Merge transfers and delete observations with no information on transferfee. 
 merge.transfer <- rbind(Arrival, Departure)
 merge.transfer <- unique(merge.transfer[, 1:8])
 clean.transfer <- subset(merge.transfer, !is.na(Transferfee))
+
+# Removes merge.transfer, Arrival and Depature dataframes
+rm(merge.transfer)
+rm(Arrival)
+rm(Departure)
 
 # Without col_types, read_csv mistakenly believes season to be a date, and fails to load the column
 players   <- read_csv("https://raw.githubusercontent.com/rbjoern/Gruppe2/master/Exam%20project/Data/players.csv",
@@ -52,6 +64,10 @@ vars2     <- c("fullName", "season", "APPEARANCES", "AVERAGE_GOALS_PER_MATCH", "
            "ASSISTS", "CLEAN_SHEETS", "FOULED", "FOULS", "RED_CARDS", "YELLOW_CARDS", "SUBSTITUTIONS_OFF", "SUBSTITUTIONS_ON",
            "TOP_SCORERS", "WEIGHT","SHORTEST", "DRAW_RATIO", "WIN_RATIO", "LOSS_RATIO")
 working   <- players[vars2]
+
+# Removes vars2 and players
+rm(vars2)
+rm(players)
 
 # A variable in clean form might be affected by a player working in another soccer league
 # Therefore are all variables are calculated as the score per appearence
@@ -71,6 +87,9 @@ vars3     <- c("fullName", "season", "APPEARANCES", "AVERAGE_GOALS_PER_MATCH", "
            "WEIGHT", "SHORTEST", "DRAW_RATIO", "WIN_RATIO", "LOSS_RATIO")
 working   <- working[vars3]
 
+# Removes vars3
+rm(vars3)
+
 #Renaming variables
 names (working)   <- c("Name", "Season", "Appearances", "AvgGoals", "AvgPoints", "Assists", "CleanSheets", "Fouled", "Fouls", "RedCards", 
                      "YellowCards", "SubstitutionsOff", "SubstitutionsOn", "TopScores", "Weight", "Height", "DrawRatio", "WinRatio", "LossRatio")
@@ -81,6 +100,10 @@ working$Season    <- working$Season %>% substr(6,9) %>% as.integer()
 # Merging statistics of transfers and statistics on players
 merge             <- left_join(clean.transfer, working, by.x = "Name", by.y = "Season")
 
+# Removes clean.transfer and working
+rm(clean.transfer)
+rm(working)
+
 # Removing observations not available
 merge             <- subset(merge, !is.na(Appearances))
 
@@ -89,3 +112,7 @@ index             <- read.table("https://raw.githubusercontent.com/rbjoern/Grupp
 names (index)     <- c("Season", "CPI Index")
 
 Clean.data        <- left_join(merge, index, by.x = "Season")
+
+# Removes merge and index
+rm(merge)
+rm(index)
