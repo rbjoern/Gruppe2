@@ -36,8 +36,13 @@ Departure <- Departure[vars]
 names(Arrival) <- c("Name", "Age", "Position", "Marketvalue", "Selling", "Season", "Buying", "Transferfee")
 names (Departure) <- c("Name", "Age", "Position", "Marketvalue", "Buying", "Season", "Selling", "Transferfee")
 
+vars4 <- c("Name", "Age", "Season", "Position","Transferfee", "Marketvalue", "Selling", "Buying")
+Arrival <- Arrival[vars4]
+Departure <- Departure[vars4]
+
 # Merge transfers and delete observations with no information on transferfee. 
-merge.transfer <- left_join(Arrival, Departure)
+merge.transfer <- rbind(Arrival, Departure)
+merge.transfer <- unique(merge.transfer[, 1:8])
 clean.transfer <- subset(merge.transfer, !is.na(Transferfee))
 
 # Without col_types, read_csv mistakenly believes season to be a date, and fails to load the column
@@ -70,8 +75,8 @@ working <- working[vars3]
 names (working) <- c("Name", "Season", "Appearances", "AvgGoals", "AvgPoints", "Assists", "CleanSheets", "Fouled", "Fouls", "RedCards", 
                      "YellowCards", "SubstitutionsOff", "SubstitutionsOn", "TopScores", "Weight", "Height", "DrawRatio", "WinRatio", "LossRatio")
 
-# Keeping season as first year of the season
-working$Season <- working$Season %>% substr(1,4) %>% as.integer()
+# Keeping season as last year of the season
+working$Season <- working$Season %>% substr(6,9) %>% as.integer()
 
 # Merging statistics of transfers and statistics on players
 merge <- left_join(clean.transfer, working, by.x = "Name", by.y = "Season")
