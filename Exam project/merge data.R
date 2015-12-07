@@ -113,10 +113,47 @@ names (index)     <- c("Season", "CPI_Index_2010", "CPI_Index_2014")
 
 Clean.data        <- left_join(merge, index, by.x = "Season")
 
+# Cleans market value
+Clean.data$MV = ifelse(Clean.data$Marketvalue=="-", NA, as.character(Clean.data$Marketvalue))
+
+# Isolates multiplier for market value
+Clean.data$multiplierMV = substr(as.character(Clean.data$MV), nchar(as.character(Clean.data$MV))-1+1, nchar(as.character(Clean.data$MV)))
+
+# Cleans multiplier
+Clean.data$factorMV = ifelse(Clean.data$multiplierMV=="m",
+                            as.numeric(1000000),
+                            ifelse(Clean.data$multiplierMV=="k",
+                                   as.numeric(1000),
+                                   as.numeric(0)
+                            ))
+
+# Extracts only digits from transfer pricing
+Clean.data$MV = as.numeric(str_extract(Clean.data$MV, "\\d+\\.*\\d*"))
+
+# Creates price variable as product of transferpricing and the factor
+Clean.data$Marketvalue = Clean.data$MV*Clean.data$factorMV
+
+# Divides Marketvalue by 1000
+Clean.data$Marketvalue = Clean.data$Marketvalue/1000
+
+# Removes variables from marketvalue calculation
+Clean.data$MV           = NULL
+Clean.data$multiplierMV = NULL
+Clean.data$factorMV     = NULL
+
 # Removes merge and index
 rm(merge)
 rm(index)
 
 #We calculate fixed prices 
-
 Clean.data$Transferfee_real = Clean.data$Transferfee/Clean.data$CPI_Index_2014
+Clean.data$Marketvalue_real = Clean.data$Marketvalue/Clean.data$CPI_Index_2014
+
+# Removes index
+Clean.data$CPI_Index_2014 = NULL
+Clean.data$CPI_Index_2010 = NULL
+Clean.data$Transferfee    = NULL
+Clean.data$Marketvalue    = NULL
+
+
+
