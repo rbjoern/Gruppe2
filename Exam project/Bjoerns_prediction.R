@@ -73,7 +73,7 @@ varImpPlot(rf.1)
 
 #Random forest
 rf.1 <- randomForest(Transferfee_real ~ . -Name - Season, data = df.tree, 
-                     subset=train, mtry = 17/3, importance=TRUE, ntree=1000)
+                     subset=train, mtry = 17/3, importance=TRUE, ntree=300)
 yhat.rf <- predict(rf.1, newdata=df.tree[-train,])
 plot(yhat.rf, df.test)
 abline(0,1)
@@ -89,10 +89,10 @@ plot( importance(rf.1), lty=2, pch=16)
 lines(importance(rf.1))
 imp = importance(rf.1)
 impvar = rownames(imp)[order(imp[, 1], decreasing=TRUE)]
-op = par(mfrow=c(1, 3))
+op = par(mfrow=c(1, 3)) 
 for (i in seq_along(impvar)) {
   partialPlot(rf.1, raw, impvar[i], xlab=impvar[i],
-              main=paste("Partial Dependence on", impvar[i]),
+              main=paste('Partial Dependence on', impvar[i]),
               ylim=c(0, 1))
 }
 
