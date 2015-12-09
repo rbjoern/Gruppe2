@@ -73,7 +73,7 @@ varImpPlot(rf.1)
 
 #Random forest
 rf.1 <- randomForest(Transferfee_real ~ . -Name - Season, data = df.tree, 
-                     subset=train, mtry = 17/3, importance=TRUE, ntree=300)
+                   subset=train, mtry = 17/3, importance=TRUE, ntree=1000)
 yhat.rf <- predict(rf.1, newdata=df.tree[-train,])
 plot(yhat.rf, df.test)
 abline(0,1)
