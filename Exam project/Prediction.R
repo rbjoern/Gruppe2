@@ -26,11 +26,6 @@ plot(cv.tree_1$size ,cv.tree_1$dev ,type='b')
 
 
 
-
-
-
-
-
 #################################################################
 
 prune.tree_1=prune.tree(tree_1 ,best=5)
