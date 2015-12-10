@@ -2,6 +2,7 @@ library("readr")
 library("stringr")
 library("dplyr")
 library("gdata")
+library("stargazer")
 
 # Cleaning dataset "Transfers"
 # Transfermarket.com
@@ -52,7 +53,6 @@ merge.transfer <- rbind(Arrival, Departure)
 merge.transfer <- unique(merge.transfer[, 1:8])
 clean.transfer <- subset(merge.transfer, !is.na(Transferfee))
 
-<<<<<<< HEAD
 #As some have the an age value equal to birth year (both negative and positive) these are used to calculate the actual age
 #Using season value to calculate the age in the year of the season
 #Deleting observations with the age=0
@@ -62,12 +62,10 @@ clean.transfer$Age <- ifelse(clean.transfer$Age<0,(clean.transfer$Season + clean
 clean.transfer$Age <- ifelse(clean.transfer$Age>200,(clean.transfer$Season - clean.transfer$Age), clean.transfer$Age)
 clean.transfer$Age <- ifelse(clean.transfer$Age == 0,NA, clean.transfer$Age)
 
-=======
 # Removes merge.transfer, Arrival and Depature dataframes
 rm(merge.transfer)
 rm(Arrival)
 rm(Departure)
->>>>>>> origin/master
 
 # Without col_types, read_csv mistakenly believes season to be a date, and fails to load the column
 players   <- read_csv("https://raw.githubusercontent.com/rbjoern/Gruppe2/master/Exam%20project/Data/players.csv",
