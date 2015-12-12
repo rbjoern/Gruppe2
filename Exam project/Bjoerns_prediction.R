@@ -42,17 +42,19 @@ yhat.tree1 <- predict(tree.1, newdata = df.tree[-train,])
 df.test <- df.tree[-train, "Transferfee_real"]
 #plot(yhat.tree1, df.test)
 #abline(0,1)
+mean((yhat.tree1-df.test)^2)
 sqrt(mean((yhat.tree1-df.test)^2))
 
 # ~ Monkey (compare to a monkey which simply guesses at the average)
 sqrt(mean((mean(df.tree$Transferfee_real)-df.test)^2))
 
+
 #We will now prune the tree. First we compute a visual of how much the model error decreases as the tree grows
 cv.tree.1 <- cv.tree(tree.1)
-plot(cv.tree.1)
-summary(cv.tree.1)
+plot(cv.tree.1$size, cv.tree.1$dev, type="s")
 
-#We then prune the tree until the optimal point, which here is no pruning at all. 
+#We then prune the tree until the optimal point, which here is no pruning at all.
+#The next code chunk is therefore legacy code from earlier trees, such that it is. 
 prune.1 <- prune.tree(tree.1, best=19)
 plot(prune.1)
 text(prune.1)
@@ -67,7 +69,7 @@ sqrt(mean((yhat.tree1-df.test)^2))
 # ~ Monkey
 sqrt(mean((mean(df.tree$Transferfee_real)-df.test)^2))
 
-# Bagging: Random forest with all 17 parameteres at all times
+# Bagging: Random forest with all 17 parameters at all times
 rf.1 <- randomForest(Transferfee_real ~ . -Name - Season, data = df.tree, 
                      subset=train, mtry = 17, importance=TRUE, ntree=1000)
 yhat.rf <- predict(rf.1, newdata=df.tree[-train,])
@@ -104,10 +106,10 @@ for (i in seq_along(impvar)) {
 
 
 # Boosting
-boost.1 <- gbm(Transferfee_real~. -Name -Season, data = df.tree[train,], distribution = "gaussian", n.trees = 5000, interaction.depth=4,
+boost.1 <- gbm(Transferfee_real~. -Name -Season, data = df.tree[train,], distribution = "gaussian", n.trees = 10000, interaction.depth=4,
                shrinkage = )
 #summary(boost.1)
-yhat.boost <- predict(boost.1, newdata=df.tree[-train,], n.trees = 5000)
+yhat.boost <- predict(boost.1, newdata=df.tree[-train,], n.trees = 10000)
 sqrt(mean((yhat.boost-df.test)^2))
 
 
