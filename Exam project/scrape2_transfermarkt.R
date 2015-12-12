@@ -1,7 +1,14 @@
+########################################################
+####### APPENDIX 2: TRANSFERMARKT.CO.UK SCRAPER ########
+########################################################
+
 library("rvest")
 library("dplyr")
 library("plyr")
 
+#First, we write a function which can scrape a single page
+#Then we run it for all seasons 
+#Finally we clean the data a little bit by assigning values from header rows, and then deleting the header rows
 
 #The following function extracts a dataframe with all players displayed at one time on a page 
 scrape_season <- function(link) {
@@ -34,10 +41,6 @@ scrape_season <- function(link) {
   return(data.frame(cbind(name, age, position, marketvalue, otherclub, transferfee), stringsAsFactors = FALSE))
 }
 
-#tjek <- scrape_season(link)
-
-#link <- "http://www.transfermarkt.co.uk/premier-league/transfers/wettbewerb/GB1/plus/?saison_id=2015&s_w&leihe=0&intern=0"
-
 #We now run the function for all 24 seasons 
 #Runtime approx 10 minutes
 
@@ -56,13 +59,10 @@ Sys.sleep(1)
 
 return(df)
 
-  })
+})
 
 print("Scraping done!")
 
-
-
-#df <-   data.frame(scrape_season(url), stringsAsFactors = FALSE)
 df.unclean <- ldply(list.dfs, rbind)
 
 #The following procedure cleans the data. 
@@ -70,7 +70,6 @@ df.unclean <- ldply(list.dfs, rbind)
   # "header" rows for each club. On the site, clubs are divided 1) headers dividing each club (e.g. 
   # Chelsea's transactions), and then subheaders dividing those transactions into arrivals/departures
   # Below we copy this information for each block of data (i.e clubs, and departures/arrivals)
-  #Runtime approx 
 
 df <- df.unclean
 

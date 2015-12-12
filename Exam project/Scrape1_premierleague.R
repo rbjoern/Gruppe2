@@ -1,3 +1,8 @@
+########################################################
+####### APPENDIX 1: PREMIERLEAGUE.COM SCRAPER ##########
+########################################################
+
+#Required packages
 library("jsonlite")
 library("reshape")
 library("plyr")
@@ -8,12 +13,11 @@ library("tidyr")
 #The following code extracts all statistics from 1992-2015. 
 #Runtime is approximately 20 minutes.
 
-
-  #We run a nested loop (via lapply), changing the URL of the JSON file to reflect the indidual statistic and season
+#We run a nested loop (via lapply), changing the URL of the JSON file to reflect the indidual statistic and season
 #The site contains information about the following scores in individual JSON files. 
 scores <- c("TOP_SCORERS", "APPEARANCES", "ASSISTS", "YELLOW_CARDS", "RED_CARDS", "FOULS", "FOULED", "TALLEST", "SHORTEST", "WIN_RATIO", "LOSS_RATIO", "DRAW_RATIO", "AVERAGE_GOALS_PER_MATCH", "AVERAGE_POINTS_PER_MATCH", "CLEAN_SHEETS", "SUBSTITUTIONS_ON", "SUBSTITUTIONS_OFF", "OLDEST", "YOUNGEST", "WEIGHT")   
 #Data is also seperated by season, from 1992-1993 to 2015-2016, a total of 24 seasons. 
-seasons = 0:23
+seasons <- 0:23
 
 #We apply a procedure to each season, and return a list of dataframes (one for each season) which are then merged below
 df.allseasons <- lapply(seasons, function(i){
@@ -35,15 +39,15 @@ df.allseasons <- lapply(seasons, function(i){
       df.score$season <- list$playersIndexViewContext$season
     
       #The data.frame contains a smaller dataframe with various club names. 
-        #This make data management harder, since one has to refer to a df inside a df.
-        #We therefore extract the relevant information - club name - and then drop irrelevant variables
+        #This make data management harder, since one has to refer to a dataframe inside a dataframe.
+        #We therefore extract the relevant information - club name - and  drop irrelevant variables
       df.score$club <- df.score$club$name
       df.score <- df.score[c("id", "fullName", "club", "value", "score", "season")]
-      #dropped variables "position", "cmsAlias", "lastName",
       
       #We'd like a small status update, to make sure the code is running. 
       print(paste("... Scraped: Season", 1992 + i, "-", 1993 + i, ",", score))
       Sys.sleep(1) #We let the system sleep momentarily, to avoid badgering their servers
+    
     #The functuon returns the dataframe
     return(df.score)
   })
@@ -52,20 +56,20 @@ df.allseasons <- lapply(seasons, function(i){
   season.long <- ldply(df.allscores, rbind)
   season.long <- season.long[order(season.long$id),]
   
-  #We are interested in individual players, so they form observational unit. 
+  #We are interested in individual players, so they form the observational unit. 
   #Hence, we transform the data to a wide format with one row per player/season combo
   season.wide <- season.long %>% spread(key = "score", value = "value")
   
-  
   print(paste("... Finished scraping season!"))
   Sys.sleep(1)
-    return(season.wide)
+  return(season.wide)
 })
 
 print(paste("Finished scraping!"))
 
 #One again, we append the list of dataframes on top of each other
 df.players <- ldply (df.allseasons, rbind)
+#This time we de not spread because we are interested in data on a season basis. 
 
 #Finally, we save our work to avoid having to repeat ourselves 
-write.csv(df.players, file="players.csv", row.names = FALSE)
+write.csv(df.players, file="players.csv", row.names = FALSE)face
