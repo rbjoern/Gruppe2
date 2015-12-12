@@ -1,3 +1,7 @@
+########################################################
+####### APPENDIX 5: FIGURE FOR THE INTRODUCTION ########
+########################################################
+
 library("readr")
 library("stringr")
 library("dplyr")
