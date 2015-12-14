@@ -1,6 +1,9 @@
 ########################################################
 ####### APPENDIX 5: FIGURE FOR THE INTRODUCTION ########
 ########################################################
+#This code provides the figure used in the introduction
+#However, real values were computed too late, so we need to compute a few fixed prices first. 
+
 
 library("readr")
 library("stringr")
@@ -35,6 +38,7 @@ transfers        <- left_join(transfers, index, by.x = "season")
 
 transfers$fee.real = transfers$fee/transfers$CPI_Index_2014
 
+#We create a data set with total values for each season based on transfer type. 
 transfervalue <- transfers %>% 
                   filter(!is.na(fee.real)) %>% 
                   group_by(season, transfertype) %>%
@@ -42,6 +46,7 @@ transfervalue <- transfers %>%
                   value = sum(fee.real)
                   )
 
+#We then create the figure
 q <- ggplot(transfervalue, aes(x=season, y=value/1000, colour=transfertype)) 
 q + geom_line(size = 1) + 
   theme_light()   +
@@ -49,6 +54,7 @@ q + geom_line(size = 1) +
   labs(x = "Season", y="Total value in 2014  prices in mio. pounds ") + 
   theme(axis.title = element_text(family = "Times", color="#000000"))
 
+#Below we compute the averages referenced in the text. 
 # Creating two seperate subsets, Arrivals and Departures;
 Arrival     <- subset(transfervalue, transfervalue$transfertype == "Arrivals")
 mean(Arrival$value)
